@@ -29,23 +29,30 @@ std::vector<std::string> read_image_path(const char* image_file)
 }
 
 void write_detect_result(
-    std::ofstream& out_file, const std::string& image_path, const std::vector<Face>& faces)
+    std::ofstream& out_file,
+    const std::string& image_path,
+    const std::vector<Face>& faces,
+    const cv::Size& img_size)
 {
     out_file << image_path + "\n";
     for (const Face& face : faces) {
-        out_file << face.m_score << " ";
-        out_file << face.m_loc.x << " " << face.m_loc.y << " " 
-                 << face.m_loc.width << " " << face.m_loc.height << " ";
+        out_file << face.m_score * 1.f / 100 << " ";
+        out_file << face.m_loc.x * 1.f / img_size.width << " ";
+        out_file << face.m_loc.y * 1.f / img_size.height << " ";
+        out_file << face.m_loc.width * 1.f / img_size.width << " ";
+        out_file << face.m_loc.height * 1.f / img_size.height << " ";
         for (size_t i = 0; i < face.m_landmarks.size(); i++) {
             const cv::Point& point = face.m_landmarks[i];
             if (i < face.m_landmarks.size() - 1) {
-                out_file << point.x << " " << point.y << " ";
+                out_file << point.x * 1.f / img_size.width << " ";
+                out_file << point.y * 1.f / img_size.height << " ";
             }
             else {
-                out_file << point.x << " " << point.y;
+                out_file << point.x * 1.f / img_size.width << " ";
+                out_file << point.y * 1.f / img_size.height;
             }
         }
-        out_file << "\n";
+        out_file << std::endl;
     }
 }
 
@@ -53,6 +60,7 @@ int main()
 {
     FaceDetector detector;
 
+    cv::Size img_size(960, 540);
     const char* image_file = "F:\\data\\monitor\\monitor_face_val_outdoor_scene1.txt";
     std::vector<std::string> image_paths = read_image_path(image_file);
 
@@ -60,9 +68,9 @@ int main()
     for (size_t i = 0; i < image_paths.size(); i++) {
         std::string image_path = image_paths[i];
         cv::Mat image = cv::imread(image_path);
-        cv::resize(image, image, cv::Size(960, 480));
+        cv::resize(image, image, img_size);
         std::vector<Face> faces = detector.detect(image, 20);
-        write_detect_result(out_file, image_path, faces);
+        write_detect_result(out_file, image_path, faces, img_size);
         std::cout << "progress: " << i + 1 << " / " << image_paths.size() << std::endl;
     }
 
