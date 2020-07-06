@@ -1,96 +1,70 @@
-#include <iostream>
-#include <facedetection/facedetectcnn.h>
-#include <opencv2/opencv.hpp>
+#include <string>
+#include <fstream>
+#include "detector.h"
 
-constexpr auto DETECT_BUFFER_SIZE = 0x20000;
-
-void draw_detected_faces(
-    const cv::Mat& image, const int* pResults, const int threshold = 80)
+void draw_faces(cv::Mat &image, const std::vector<Face>& faces)
 {
-    if (!pResults) {
-        return;
-    }
-    for (int i = 0; i < *pResults; i++) {
-        short * p = ((short*)(pResults + 1)) + 142 * i;
-        int confidence = p[0];
-
-        if (p[0] < threshold) {
-            continue;
+    for (const Face& face : faces) {
+        cv::rectangle(image, face.m_loc, cv::Scalar(255, 0, 0), 2);
+        for (const cv::Point& landmark : face.m_landmarks) {
+            cv::circle(image, landmark, 1, cv::Scalar(0, 0, 255), -1);
         }
+    }
+    cv::namedWindow("faces", cv::WINDOW_AUTOSIZE);
+    cv::imshow("faces", image);
+    cv::waitKey();
+    cv::destroyWindow("faces");
+}
 
-        int x = p[1];
-        int y = p[2];
-        int w = p[3];
-        int h = p[4];
+std::vector<std::string> read_image_path(const char* image_file)
+{
+    std::vector<std::string> image_paths;
 
-        //show the score of the face. Its range is [0-100]
-        char sScore[256];
-        snprintf(sScore, 256, "%d", confidence);
-        cv::putText(
-            image, sScore, cv::Point(x, y - 3),
-            cv::FONT_HERSHEY_SIMPLEX, 0.5, cv::Scalar(0, 255, 0), 1);
-        //draw face rectangle
-        rectangle(image, cv::Rect(x, y, w, h), cv::Scalar(0, 255, 0), 2);
-        //draw five face landmarks in different colors
-        cv::circle(image, cv::Point(p[5], p[5 + 1]), 1, cv::Scalar(255, 0, 0), 2);
-        cv::circle(image, cv::Point(p[5 + 2], p[5 + 3]), 1, cv::Scalar(0, 0, 255), 2);
-        cv::circle(image, cv::Point(p[5 + 4], p[5 + 5]), 1, cv::Scalar(0, 255, 0), 2);
-        cv::circle(image, cv::Point(p[5 + 6], p[5 + 7]), 1, cv::Scalar(255, 0, 255), 2);
-        cv::circle(image, cv::Point(p[5 + 8], p[5 + 9]), 1, cv::Scalar(0, 255, 255), 2);
+    std::ifstream in_file(image_file);
+    std::string path;
+    while (std::getline(in_file, path, '\n')) {
+        image_paths.push_back(path);
+    }
+    return image_paths;
+}
 
-        //print the result
-        printf("face %d: confidence=%d, [%d, %d, %d, %d] (%d,%d) (%d,%d) (%d,%d) (%d,%d) (%d,%d)\n",
-            i, confidence, x, y, w, h,
-            p[5], p[6], p[7], p[8], p[9], p[10], p[11], p[12], p[13], p[14]);
-
+void write_detect_result(
+    std::ofstream& out_file, const std::string& image_path, const std::vector<Face>& faces)
+{
+    out_file << image_path + "\n";
+    for (const Face& face : faces) {
+        out_file << face.m_score << " ";
+        out_file << face.m_loc.x << " " << face.m_loc.y << " " 
+                 << face.m_loc.width << " " << face.m_loc.height << " ";
+        for (size_t i = 0; i < face.m_landmarks.size(); i++) {
+            const cv::Point& point = face.m_landmarks[i];
+            if (i < face.m_landmarks.size() - 1) {
+                out_file << point.x << " " << point.y << " ";
+            }
+            else {
+                out_file << point.x << " " << point.y;
+            }
+        }
+        out_file << "\n";
     }
 }
 
-int main(int argc, char** argv)
+int main()
 {
-    if (argc < 3) {
-        std::cout << "need image or video path." << std::endl;
-        system("pause");
-        return -1;
-    }
-    std::string detect_type = argv[1];
-    if (detect_type == "--image") {
-        const char* image_path = argv[2];
+    FaceDetector detector;
+
+    const char* image_file = "F:\\data\\monitor\\monitor_face_val_outdoor_scene1.txt";
+    std::vector<std::string> image_paths = read_image_path(image_file);
+
+    std::ofstream out_file("libfacedetection.txt");
+    for (size_t i = 0; i < image_paths.size(); i++) {
+        std::string image_path = image_paths[i];
         cv::Mat image = cv::imread(image_path);
-        cv::resize(image, image, cv::Size(640, 480));
-
-        int* pResults = NULL;
-        //pBuffer is used in the detection functions.
-        //If you call functions in multiple threads, please create one buffer for each thread!
-        unsigned char * pBuffer = (unsigned char *)malloc(DETECT_BUFFER_SIZE);
-        if (!pBuffer)
-        {
-            std::cerr << "Can not alloc buffer" << std::endl;
-            return -1;
-        }
-
-        cv::TickMeter cvtm;
-        for (int i = 0; i < 100; ++i) {
-            cvtm.start();
-            pResults = facedetect_cnn(
-                pBuffer, (unsigned char*)(image.ptr(0)),
-                image.cols, image.rows, (int)image.step);
-            cvtm.stop();
-        }
-        std::cout << "average face detect time: "
-            << cvtm.getTimeMilli() / cvtm.getCounter()
-            << std::endl;
-
-        cv::Mat result_image = image.clone();
-        draw_detected_faces(result_image, pResults);
-        cv::imshow("result", result_image);
-        cv::waitKey();
-        free(pBuffer);
+        cv::resize(image, image, cv::Size(960, 480));
+        std::vector<Face> faces = detector.detect(image, 20);
+        write_detect_result(out_file, image_path, faces);
+        std::cout << "progress: " << i + 1 << " / " << image_paths.size() << std::endl;
     }
-    else {
-        std::cout << "unsupported detect type: " << detect_type << std::endl;
-        system("pause");
-        return -1;
-    }
+
     return 0;
 }
