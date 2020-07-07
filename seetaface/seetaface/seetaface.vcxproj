@@ -108,29 +108,22 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(OPENCV)\include;.\SeetaFace2\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(OPENCV)\include;$(SeetaFace)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>$(OPENCV)\lib;.\SeetaFace2\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>opencv_world420.lib;SeetaFaceDetector.lib;SeetaFaceLandmarker.lib;SeetaFaceRecognizer.lib;SeetaFaceTracker.lib;SeetaNet.lib;SeetaQualityAssessor.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(OPENCV)\lib;$(SeetaFace)\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>opencv_world420.lib;SeetaQualityAssessor300d.lib;SeetaQualityAssessor300.lib;SeetaPoseEstimation600d.lib;SeetaPoseEstimation600.lib;SeetaMaskDetector200d.lib;SeetaMaskDetector200.lib;SeetaGenderPredictor600d.lib;SeetaGenderPredictor600.lib;SeetaFaceTracking600d.lib;SeetaFaceTracking600.lib;SeetaFaceRecognizer610d.lib;SeetaFaceRecognizer610.lib;SeetaFaceLandmarker600d.lib;SeetaFaceLandmarker600.lib;SeetaFaceDetector600d.lib;SeetaFaceDetector600.lib;SeetaFaceAntiSpoofingX600d.lib;SeetaFaceAntiSpoofingX600.lib;SeetaEyeStateDetector200d.lib;SeetaEyeStateDetector200.lib;SeetaAgePredictor600d.lib;SeetaAgePredictor600.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="face_detector.cpp" />
-    <ClCompile Include="face_marker.cpp" />
-    <ClCompile Include="face_quality.cpp" />
-    <ClCompile Include="face_tracker.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="face_detector.h" />
-    <ClInclude Include="face_marker.h" />
-    <ClInclude Include="face_quality.h" />
-    <ClInclude Include="face_tracker.h" />
-    <ClInclude Include="Struct_cv.h" />
     <ClInclude Include="utility.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

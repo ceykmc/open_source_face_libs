@@ -21,33 +21,12 @@
     <ClCompile Include="face_detector.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="face_marker.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="face_quality.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="face_tracker.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="utility.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="face_detector.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="face_marker.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="face_quality.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="face_tracker.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
-    <ClInclude Include="Struct_cv.h">
       <Filter>头文件</Filter>
     </ClInclude>
     <ClInclude Include="utility.h">

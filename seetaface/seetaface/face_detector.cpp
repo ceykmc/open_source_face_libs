@@ -3,13 +3,13 @@
 
 FaceDetector::FaceDetector()
 {
-	std::string fd_model_path = "./model/fd_2_00.dat";
-	seeta::ModelSetting::Device device = seeta::ModelSetting::CPU;
-	int id = 0;
-	seeta::ModelSetting fd_model_setting(fd_model_path, device, id);
-	m_face_detector = new seeta::FaceDetector(fd_model_setting, 640, 480);
-	m_face_detector->set(seeta::FaceDetector::PROPERTY_MIN_FACE_SIZE, 10);
-	m_face_detector->set(seeta::FaceDetector::PROPERTY_VIDEO_STABLE, 1);
+    seeta::ModelSetting::Device device = seeta::ModelSetting::CPU;
+    int id = 0;
+    seeta::ModelSetting FD_model("./models/face_detector.csta", device, id);
+
+	m_face_detector = new seeta::FaceDetector(FD_model);
+	m_face_detector->set(seeta::FaceDetector::PROPERTY_MIN_FACE_SIZE, 20);
+	m_face_detector->set(seeta::FaceDetector::PROPERTY_THRESHOLD, 0.2);
 }
 
 FaceDetector::~FaceDetector()

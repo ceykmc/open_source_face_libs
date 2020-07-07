@@ -34,14 +34,19 @@ void write_detect_result(
     }
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    if (argc < 4) {
+        std::cout << "seetaface.exe image_path_list_file img_width img_height" << std::endl;
+        return -1;
+    }
+    const char* image_path_list_file = argv[1];
+    int img_width = atoi(argv[2]);
+    int img_height = atoi(argv[3]);
+    cv::Size img_size(img_width, img_height);
+
     FaceDetector face_detector;
-
-    cv::Size img_size(960, 540);
-    const char* image_file = "F:\\data\\monitor\\monitor_face_val_outdoor_scene1.txt";
-    std::vector<std::string> image_paths = read_image_path(image_file);
-
+    std::vector<std::string> image_paths = read_image_path(image_path_list_file);
     std::ofstream out_file("SeetaFace.txt");
     for (size_t i = 0; i < image_paths.size(); i++) {
         std::string image_path = image_paths[i];
